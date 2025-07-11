@@ -32,18 +32,24 @@ workflows:
           security unlock-keychain -p "" build.keychain
           security import "$P12_CERT_PATH" -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
 
-      - name: Install provisioning profile
-        script: |
-          set -ex
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_UUID=$(grep -ao '<UUID>.*</UUID>' "$APP_PROFILE_PATH" | sed -E 's:<(/)?UUID>::g' | head -1)
-          if [ -z "$PROFILE_UUID" ]; then
-            echo "❌ Failed to extract PROFILE_UUID from $APP_PROFILE_PATH"
-            exit 1
-          fi
-          echo "✅ Using provisioning profile UUID: $PROFILE_UUID"
-          cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
-          echo "export PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV  # Export for use in later steps
+          - name: Install provisioning profile
+            script: |
+              set -ex
+              mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+              
+              # Decode and extract UUID from .mobileprovision
+              PROFILE_UUID=$(security cms -D -i "$APP_PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+    
+              if [ -z "$PROFILE_UUID" ]; then
+                echo "❌ Failed to extract PROFILE_UUID from $APP_PROFILE_PATH"
+                exit 1
+              fi
+    
+              echo "✅ Using provisioning profile UUID: $PROFILE_UUID"
+              cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
+    
+              # Export it for later steps
+              echo "export PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV
 
       - name: Apply manual signing to Xcode project
         script: |
