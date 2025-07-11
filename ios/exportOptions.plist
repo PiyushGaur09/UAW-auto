@@ -8,7 +8,7 @@
   <key>provisioningProfiles</key>
   <dict>
     <key>com.uawauto.uaw</key>
-    <string>Uaw Auto</string>
+    <string>UAW_Provision_Profile</string>
   </dict>
 </dict>
 </plist>
