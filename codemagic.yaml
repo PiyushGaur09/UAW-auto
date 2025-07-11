@@ -10,6 +10,11 @@ workflows:
         BUNDLE_ID: "com.uawauto.uaw"
       xcode: latest
     scripts:
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install
+
       - name: Install certificate
         script: |
           security create-keychain -p "" build.keychain
@@ -21,21 +26,23 @@ workflows:
         script: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           PROFILE_UUID=$(grep -a -o '<UUID>.*</UUID>' $APP_PROFILE_PATH | sed -e 's/<UUID>//' -e 's:</UUID>::')
+          echo "Extracted Provisioning Profile UUID: $PROFILE_UUID"
           cp $APP_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
 
       - name: Set signing style
         script: |
-          xcode-project use-profiles  # still needed to apply manual settings
+          xcode-project use-profiles
 
       - name: Build iOS archive
         script: |
           PROFILE_UUID=$(grep -a -o '<UUID>.*</UUID>' $APP_PROFILE_PATH | sed -e 's/<UUID>//' -e 's:</UUID>::')
-          xcodebuild -project ios/UAWauto.xcodeproj \
+          xcodebuild -workspace ios/UAWauto.xcworkspace \
             -scheme UAWauto \
             -archivePath $CM_BUILD_DIR/UAWauto.xcarchive \
             archive \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID"
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
+            OTHER_CODE_SIGN_FLAGS="--keychain build.keychain"
 
       - name: Export IPA
         script: |
