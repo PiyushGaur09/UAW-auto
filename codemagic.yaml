@@ -36,20 +36,12 @@ workflows:
         script: |
           set -ex
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-              
-              # Decode and extract UUID from .mobileprovision
-          PROFILE_UUID=$(security cms -D -i "$APP_PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
-    
-          if [ -z "$PROFILE_UUID" ]; then
-            echo "❌ Failed to extract PROFILE_UUID from $APP_PROFILE_PATH"
-            exit 1
-          fi
-    
-           echo "✅ Using provisioning profile UUID: $PROFILE_UUID"
-          cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
-    
-              # Export it for later steps
-          echo "export PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV
+          PROFILE_UUID="f4743f55-d063-482c-817a-982fb1be0b31"
+          echo "Using profile UUID: $PROFILE_UUID"
+          cp "ios/UAW_Provision_Profile.mobileprovision" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          echo "PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV
+
 
       - name: Apply manual signing to Xcode project
         script: |
