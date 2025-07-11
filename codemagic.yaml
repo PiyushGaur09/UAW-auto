@@ -9,6 +9,8 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: "com.uawauto.uaw"
+        create: true
+        team_id: "3N2T3MD7F6"
 
       groups:
         - appstore_credentials
