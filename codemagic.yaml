@@ -32,9 +32,7 @@ workflows:
 
       - name: Apply signing assets
         script: |
-          xcode-project use-profiles \
-            --workspace "$XCODE_WORKSPACE" \
-            --scheme    "$XCODE_SCHEME"
+          xcode-project use-profiles
 
       - name: Build & export .ipa
         script: |
