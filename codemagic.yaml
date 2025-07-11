@@ -164,4 +164,4 @@ workflows:
         submit_to_app_store: true
         cancel_previous_submissions: true
         release_type: AFTER_APPROVAL
-    copyright: 2025 Bipin Tiwari
+        copyright: 2025 Bipin Tiwari
