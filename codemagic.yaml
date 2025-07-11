@@ -4,10 +4,11 @@ workflows:
     environment:
       vars:
         CERTIFICATE_PASSWORD: EncryptedPasswordHere  # optional; use encryption
-        APP_PROFILE_PATH: "ios/certificates/profile.mobileprovision"
-        P12_CERT_PATH: "ios/certificates/certificate.p12"
+        APP_PROFILE_PATH: "ios/Uaw_Auto.mobileprovision"
+        P12_CERT_PATH: "ios/uaw_certificate.p12"
+        CERTIFICATE_PASSWORD: LWXAxSMY
         EXPORT_OPTIONS_PLIST: "ios/exportOptions.plist"
-        BUNDLE_ID: "com.your.bundle.id"
+        BUNDLE_ID: "com.uawauto.uaw"
       xcode: latest
     scripts:
       - name: Install certificate
