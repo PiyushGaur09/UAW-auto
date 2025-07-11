@@ -90,6 +90,17 @@ workflows:
             | tee "$CM_BUILD_DIR/xcodebuild.log" \
             | xcpretty --color || cat "$CM_BUILD_DIR/xcodebuild.log"
 
+        - name: 🔍 Dump failing Script log
+          script: |
+            set -ex
+            # Look for the embed‑frameworks script line that failed and show 40 lines around it
+            grep -n "Script-00EEFC60759A1932668264C0" -n "$CM_BUILD_DIR/xcodebuild.log" | \
+              while IFS=: read -r ln _; do
+                start=$((ln-20)); [ $start -lt 1 ] && start=1
+                end=$((ln+20))
+                sed -n "${start},${end}p" "$CM_BUILD_DIR/xcodebuild.log"
+              done || true
+
       - name: Debug – show xcodebuild errors
         script: |
           set -ex
