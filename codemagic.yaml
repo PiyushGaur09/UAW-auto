@@ -24,15 +24,6 @@ workflows:
           cd ios
           pod install --repo-update
 
-            # 1️⃣ after pods – force‑set bundle ID to match the provisioning profile
-      - name: Set bundle identifier
-        script: |
-          set -ex
-          xcode-project set-bundle-id \
-            --project ios/UAWauto.xcodeproj \
-            --target  UAWauto \
-            "$BUNDLE_ID"
-
       - name: Debug - Check if xcworkspace exists
         script: |
           set -ex
