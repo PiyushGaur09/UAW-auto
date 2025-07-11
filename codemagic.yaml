@@ -7,12 +7,10 @@ workflows:
 
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.uawauto.uaw
-
-      groups:
-        - appstore_credentials
-
+        certificates:
+          - UAW_Certificate
+        provisioning_profiles:
+          - UAW_Provision_Profile
       vars:
         XCODE_WORKSPACE: "ios/UAWauto.xcworkspace"
         XCODE_SCHEME:    "UAWauto"
