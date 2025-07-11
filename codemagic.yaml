@@ -105,7 +105,6 @@ workflows:
       - name: 🔍 Dump failing Script log
         script: |
           set -ex
-          # Look for the embed‑frameworks script line that failed and show 40 lines around it
           grep -n "Script-00EEFC60759A1932668264C0" -n "$CM_BUILD_DIR/xcodebuild.log" | \
             while IFS=: read -r ln _; do
               start=$((ln-20)); [ $start -lt 1 ] && start=1
@@ -143,3 +142,8 @@ workflows:
           else
             echo "No per-phase log found."
           fi
+
+artifacts:
+  - build/ios/*.ipa
+  - build/ios/**/*.dSYM.zip
+  - $CM_BUILD_DIR/xcodebuild.log
