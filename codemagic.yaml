@@ -38,10 +38,8 @@ workflows:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           PROFILE_UUID="f4743f55-d063-482c-817a-982fb1be0b31"
           echo "Using profile UUID: $PROFILE_UUID"
-          cp "ios/UAW_Provision_Profile.mobileprovision" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          cp "$APP_PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV
-
 
       - name: Apply manual signing to Xcode project
         script: |
@@ -57,9 +55,11 @@ workflows:
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             archive \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             DEVELOPMENT_TEAM=3N2T3MD7F6 \
-            OTHER_CODE_SIGN_FLAGS="--keychain build.keychain"
+            OTHER_CODE_SIGN_FLAGS="--keychain build.keychain" \
+            | tee "$CM_BUILD_DIR/xcodebuild.log" | xcpretty --color --verbose
 
       - name: Export IPA
         script: |
@@ -68,3 +68,8 @@ workflows:
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
             -exportPath "$CM_BUILD_DIR/build/ios"
+
+      - name: Print build log
+        script: |
+          echo "📄 Printing full build log:"
+          cat "$CM_BUILD_DIR/xcodebuild.log"
