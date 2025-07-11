@@ -2,6 +2,9 @@ workflows:
   ios-manual-sign:
     name: iOS Manual Code Signing Workflow
 
+    integrations:
+      app_store_connect: UAW_API_Key
+      
     environment:
       node: 18.16.0
       xcode: latest
