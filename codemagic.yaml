@@ -32,7 +32,7 @@ workflows:
 
       - name: Apply signing assets
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles --project "ios/UAWauto.xcodeproj"
 
       - name: Build & export .ipa
         script: |
