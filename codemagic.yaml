@@ -132,8 +132,11 @@ workflows:
           echo "📦 Contents of export directory ($EXPORT_PATH):"
           find "$EXPORT_PATH" -print
       
-          echo "📁 Contents of CM_BUILD_DIR:"
-          find "$CM_BUILD_DIR" -maxdepth 2 -print
+          echo "📁 Contents of CM_BUILD_DIR /build/:"
+          find "$CM_BUILD_DIR/build/ios/" -maxdepth 2 -print
+
+          echo "📁 Contents of CM_BUILD_DIR /build/ios/ipa:"
+          find "$CM_BUILD_DIR/build/ios/ipa" -maxdepth 2 -print
 
       - name: Print full build log
         script: |
