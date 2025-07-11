@@ -59,7 +59,8 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             DEVELOPMENT_TEAM=3N2T3MD7F6 \
             OTHER_CODE_SIGN_FLAGS="--keychain build.keychain" \
-            | tee "$CM_BUILD_DIR/xcodebuild.log" | xcpretty --color --verbose
+            | tee "$CM_BUILD_DIR/xcodebuild.log" \
+            | xcpretty --color || cat "$CM_BUILD_DIR/xcodebuild.log"
 
       - name: Export IPA
         script: |
