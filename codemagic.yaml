@@ -6,7 +6,7 @@ workflows:
       node: 18.16.0
       xcode: latest
       vars:
-        APP_PROFILE_PATH: "ios/Uaw_Auto.mobileprovision"
+        APP_PROFILE_PATH: "ios/UAW_Provision_Profile.mobileprovision"
         P12_CERT_PATH: "ios/uaw_certificate.p12"
         CERTIFICATE_PASSWORD: LWXAxSMY
         EXPORT_OPTIONS_PLIST: "ios/exportOptions.plist"
