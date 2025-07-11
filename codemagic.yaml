@@ -3,7 +3,6 @@ workflows:
     name: iOS Manual Code Signing Workflow
     environment:
       vars:
-        CERTIFICATE_PASSWORD: EncryptedPasswordHere  # optional; use encryption
         APP_PROFILE_PATH: "ios/Uaw_Auto.mobileprovision"
         P12_CERT_PATH: "ios/uaw_certificate.p12"
         CERTIFICATE_PASSWORD: LWXAxSMY
@@ -30,7 +29,8 @@ workflows:
 
       - name: Build iOS archive
         script: |
-          xcodebuild -workspace ios/UAWauto.xcworkspace \
+          PROFILE_UUID=$(grep -a -o '<UUID>.*</UUID>' $APP_PROFILE_PATH | sed -e 's/<UUID>//' -e 's:</UUID>::')
+          xcodebuild -project ios/UAWauto.xcodeproj \
             -scheme UAWauto \
             -archivePath $CM_BUILD_DIR/UAWauto.xcarchive \
             archive \
