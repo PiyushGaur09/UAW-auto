@@ -39,6 +39,11 @@ workflows:
           set -ex
           xcodebuild -list -workspace ios/UAWauto.xcworkspace
 
+      - name: Debug - Show buildable targets for scheme
+        script: |
+          set -ex
+          xcodebuild -showBuildSettings -workspace ios/UAWauto.xcworkspace -scheme UAWauto | grep -i "targetname"
+
       - name: Install certificate
         script: |
           set -ex
@@ -60,6 +65,11 @@ workflows:
         script: |
           set -ex
           xcode-project use-profiles --project ios/UAWauto.xcodeproj
+
+      - name: Clean Xcode build
+        script: |
+          set -ex
+          xcodebuild clean -workspace ios/UAWauto.xcworkspace -scheme UAWauto
 
       - name: Build iOS archive
         script: |
