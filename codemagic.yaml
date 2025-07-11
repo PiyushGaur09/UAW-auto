@@ -87,6 +87,12 @@ workflows:
             | tee "$CM_BUILD_DIR/xcodebuild.log" \
             | xcpretty --color || cat "$CM_BUILD_DIR/xcodebuild.log"
 
+      - name: Debug – show xcodebuild errors
+        script: |
+          set -ex
+          echo "🔍 Showing last errors from xcodebuild.log:"
+          grep -i -A 5 -B 5 "error:" "$CM_BUILD_DIR/xcodebuild.log" || true
+
       - name: Export IPA
         script: |
           set -ex
