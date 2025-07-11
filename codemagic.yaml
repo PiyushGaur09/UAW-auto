@@ -50,7 +50,19 @@ workflows:
           security create-keychain -p "" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
-          security import "$P12_CERT_PATH" -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+
+          # ① import the .p12 and grant codesign **and** security access (-A + -T)
+          security import "$P12_CERT_PATH" \
+              -k build.keychain \
+              -P "$CERTIFICATE_PASSWORD" \
+              -A \
+              -T /usr/bin/codesign \
+              -T /usr/bin/security
+
+          # ② add the modern key‑partition list entitlement (required on macOS 14)
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+
+          # Optional: keep the keychain unlocked for 2 h
           security set-keychain-settings -lut 7200 build.keychain
           security list-keychains -s build.keychain
 
@@ -81,12 +93,12 @@ workflows:
             -scheme UAWauto \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             archive \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            CODE_SIGN_STYLE=Manual \
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             DEVELOPMENT_TEAM=3N2T3MD7F6 \
-            OTHER_CODE_SIGN_FLAGS="--keychain $(PWD)/build.keychain" \
+            OTHER_CODE_SIGN_FLAGS="--keychain build.keychain" \
             | tee "$CM_BUILD_DIR/xcodebuild.log" \
             | xcpretty --color || cat "$CM_BUILD_DIR/xcodebuild.log"
 
