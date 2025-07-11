@@ -24,7 +24,7 @@ workflows:
           cd ios
           pod install --repo-update
 
-      - name: Debug - Check if xcworkspace exists
+      - name: Debug – Check if xcworkspace exists
         script: |
           set -ex
           if [ ! -f ios/UAWauto.xcworkspace/contents.xcworkspacedata ]; then
@@ -34,12 +34,12 @@ workflows:
             echo "✅ .xcworkspace file found."
           fi
 
-      - name: Debug - List Xcode schemes
+      - name: Debug – List Xcode schemes
         script: |
           set -ex
           xcodebuild -list -workspace ios/UAWauto.xcworkspace
 
-      - name: Debug - Show buildable targets for scheme
+      - name: Debug – Show buildable targets for scheme
         script: |
           set -ex
           xcodebuild -showBuildSettings -workspace ios/UAWauto.xcworkspace -scheme UAWauto | grep -i "targetname"
@@ -51,13 +51,15 @@ workflows:
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
           security import "$P12_CERT_PATH" -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-keychain-settings -lut 7200 build.keychain
+          security list-keychains -s build.keychain
 
       - name: Install provisioning profile
         script: |
           set -ex
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_UUID="f4743f55-d063-482c-817a-982fb1be0b31"
-          echo "Using profile UUID: $PROFILE_UUID"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(security cms -D -i "$APP_PROFILE_PATH"))
+          echo "Using extracted PROFILE_UUID: $PROFILE_UUID"
           cp "$APP_PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV
 
@@ -79,12 +81,12 @@ workflows:
             -scheme UAWauto \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             archive \
-            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-            CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGN_STYLE=Manual \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             DEVELOPMENT_TEAM=3N2T3MD7F6 \
-            OTHER_CODE_SIGN_FLAGS="--keychain build.keychain" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $(PWD)/build.keychain" \
             | tee "$CM_BUILD_DIR/xcodebuild.log" \
             | xcpretty --color || cat "$CM_BUILD_DIR/xcodebuild.log"
 
@@ -102,7 +104,19 @@ workflows:
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
             -exportPath "$CM_BUILD_DIR/build/ios"
 
-      - name: Print build log
+      - name: Print full build log
         script: |
           echo "📄 Printing full build log:"
           cat "$CM_BUILD_DIR/xcodebuild.log"
+
+      - name: Dump failing embed script log if present
+        script: |
+          set -ex
+          LOG=$(find ~/Library/Developer/Xcode/DerivedData -name "Script-00EEFC60759A1932668264C0.sh-*stderr" -print -quit || true)
+          if [ -n "$LOG" ]; then
+            echo "📄 ---- Begin embed-frameworks log ----"
+            cat "$LOG" | tail -n 120
+            echo "📄 ---- End embed-frameworks log ------"
+          else
+            echo "No per-phase log found."
+          fi
