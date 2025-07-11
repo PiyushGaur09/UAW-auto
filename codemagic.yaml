@@ -36,10 +36,14 @@ workflows:
         script: |
           set -ex
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_UUID=$(grep -ao '<UUID>.*</UUID>' "$APP_PROFILE_PATH" | sed -E 's:<(/)?UUID>::g')
-          echo "Using profile UUID: $PROFILE_UUID"
+          PROFILE_UUID=$(grep -ao '<UUID>.*</UUID>' "$APP_PROFILE_PATH" | sed -E 's:<(/)?UUID>::g' | head -1)
+          if [ -z "$PROFILE_UUID" ]; then
+            echo "❌ Failed to extract PROFILE_UUID from $APP_PROFILE_PATH"
+            exit 1
+          fi
+          echo "✅ Using provisioning profile UUID: $PROFILE_UUID"
           cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
-          echo "PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV  # export it for later steps
+          echo "export PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV  # Export for use in later steps
 
       - name: Apply manual signing to Xcode project
         script: |
@@ -49,6 +53,7 @@ workflows:
       - name: Build iOS archive
         script: |
           set -ex
+          echo "🔒 Using PROFILE_UUID=$PROFILE_UUID"
           xcodebuild -workspace ios/UAWauto.xcworkspace \
             -scheme UAWauto \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
