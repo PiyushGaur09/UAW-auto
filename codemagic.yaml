@@ -144,7 +144,7 @@ workflows:
           fi
 
 artifacts:
-    - build/ios/ipa/*.ipa
+    - build/ios/*.ipa
     - /tmp/xcodebuild_logs/*.log
     - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
     - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
