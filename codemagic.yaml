@@ -144,6 +144,7 @@ workflows:
           fi
 
 artifacts:
-  - build/ios/*.ipa
-  - build/ios/**/*.dSYM.zip
+  - $CM_BUILD_DIR/build/ios/*.ipa
+  - $CM_BUILD_DIR/build/ios/**/*.dSYM.zip
   - $CM_BUILD_DIR/xcodebuild.log
+
