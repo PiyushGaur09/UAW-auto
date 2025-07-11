@@ -153,10 +153,11 @@ workflows:
           fi
 
 artifacts:
-    - build/ios/*.ipa
-    - /tmp/xcodebuild_logs/*.log
-    - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-    - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+  - build/ios/ipa/*.ipa
+  - build/ios/ipa/*.plist
+  - /tmp/xcodebuild_logs/*.log
+  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
 
 publishing:
   app_store_connect:
