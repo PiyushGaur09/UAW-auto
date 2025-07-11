@@ -7,8 +7,8 @@
   <string>manual</string>
   <key>provisioningProfiles</key>
   <dict>
-    <key>com.your.bundle.id</key>
-    <string>Your_Profile_Name</string>
+    <key>com.uawauto.uaw</key>
+    <string>Uaw Auto</string>
   </dict>
 </dict>
 </plist>
