@@ -24,6 +24,16 @@ workflows:
           cd ios
           pod install --repo-update
 
+      - name: Debug - Check if xcworkspace exists
+        script: |
+          set -ex
+          if [ ! -f ios/UAWauto.xcworkspace/contents.xcworkspacedata ]; then
+            echo "❌ .xcworkspace not found. pod install might have failed."
+            exit 1
+          else
+            echo "✅ .xcworkspace file found."
+          fi
+
       - name: Install certificate
         script: |
           set -ex
