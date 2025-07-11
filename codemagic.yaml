@@ -7,7 +7,7 @@ workflows:
       xcode: latest
       vars:
         APP_PROFILE_PATH: "ios/Uaw_Auto.mobileprovision"
-        P12_CERT_PATH:    "ios/uaw_certificate.p12"
+        P12_CERT_PATH: "ios/uaw_certificate.p12"
         CERTIFICATE_PASSWORD: LWXAxSMY
         EXPORT_OPTIONS_PLIST: "ios/exportOptions.plist"
         BUNDLE_ID: "com.uawauto.uaw"
@@ -15,34 +15,40 @@ workflows:
     scripts:
       - name: Install JS dependencies
         script: |
+          set -ex
           npm ci
 
       - name: Install CocoaPods dependencies
         script: |
+          set -ex
           cd ios
           pod install --repo-update
 
       - name: Install certificate
         script: |
+          set -ex
           security create-keychain -p "" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
           security import "$P12_CERT_PATH" -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
 
-
       - name: Install provisioning profile
         script: |
+          set -ex
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           PROFILE_UUID=$(grep -ao '<UUID>.*</UUID>' "$APP_PROFILE_PATH" | sed -E 's:<(/)?UUID>::g')
           echo "Using profile UUID: $PROFILE_UUID"
           cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
+          echo "PROFILE_UUID=$PROFILE_UUID" >> $CM_ENV  # export it for later steps
 
       - name: Apply manual signing to Xcode project
         script: |
-          xcode-project use-profiles --project ios/UAWauto.xcodeproj
+          set -ex
+          xcode-project use-profiles
 
       - name: Build iOS archive
         script: |
+          set -ex
           xcodebuild -workspace ios/UAWauto.xcworkspace \
             -scheme UAWauto \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
@@ -51,9 +57,9 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             OTHER_CODE_SIGN_FLAGS="--keychain build.keychain"
 
-
       - name: Export IPA
         script: |
+          set -ex
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
