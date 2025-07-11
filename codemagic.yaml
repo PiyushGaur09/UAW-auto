@@ -3,7 +3,7 @@ workflows:
     name: iOS Manual Code Signing Workflow
 
     environment:
-      node: 18.16.0                 # 👈  use RN‑supported Node
+      node: 18.16.0
       xcode: latest
       vars:
         APP_PROFILE_PATH: "ios/Uaw_Auto.mobileprovision"
@@ -13,18 +13,15 @@ workflows:
         BUNDLE_ID: "com.uawauto.uaw"
 
     scripts:
-      # 1️⃣  JS deps first — generates node_modules/react-native/…
       - name: Install JS dependencies
         script: |
           npm ci
 
-      # 2️⃣  iOS pods next — now Podfile can resolve RN scripts
       - name: Install CocoaPods dependencies
         script: |
           cd ios
           pod install --repo-update
 
-      # 3️⃣  Certificate → keychain
       - name: Install certificate
         script: |
           security create-keychain -p "" build.keychain
@@ -32,7 +29,7 @@ workflows:
           security unlock-keychain -p "" build.keychain
           security import "$P12_CERT_PATH" -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
 
-      # 4️⃣  Provisioning profile → Library/MobileDevice
+
       - name: Install provisioning profile
         script: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
@@ -40,12 +37,11 @@ workflows:
           echo "Using profile UUID: $PROFILE_UUID"
           cp "$APP_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
 
-      # 5️⃣  Patch pbxproj for manual signing
       - name: Apply manual signing to Xcode project
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles ios/UAWauto.xcodeproj
 
-      # 6️⃣  Build archive (.xcarchive)
+
       - name: Build iOS archive
         script: |
           xcodebuild -workspace ios/UAWauto.xcworkspace \
@@ -56,7 +52,7 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             OTHER_CODE_SIGN_FLAGS="--keychain build.keychain"
 
-      # 7️⃣  Export signed .ipa
+
       - name: Export IPA
         script: |
           xcodebuild -exportArchive \
