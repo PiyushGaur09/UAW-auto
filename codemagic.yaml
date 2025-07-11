@@ -8,12 +8,15 @@ workflows:
     environment:
       ios_signing:
         certificates:
-          - UAW_Certificate              # 👈 Reference name from Codemagic UI
+          - UAW_Certificate
         provisioning_profiles:
-          - UAW_Provision_Profile       # 👈 Reference name from Codemagic UI
+          - UAW_Provision_Profile
 
       vars:
         XCODE_WORKSPACE: "ios/UAWauto.xcworkspace"
+        DEVELOPMENT_TEAM: 3N2T3MD7F6
+        PROVISIONING_PROFILE_SPECIFIER: "UAW_Provision_Profile"
+        CODE_SIGN_IDENTITY: "iPhone Distribution"
         XCODE_SCHEME: "UAWauto"
         BUNDLE_ID: "com.uawauto.uaw"
 
