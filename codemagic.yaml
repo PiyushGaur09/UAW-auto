@@ -44,7 +44,7 @@ workflows:
       - name: Apply manual signing to Xcode project
         script: |
           set -ex
-          xcode-project use-profiles
+          xcode-project use-profiles --project ios/UAWauto.xcodeproj
 
       - name: Build iOS archive
         script: |
