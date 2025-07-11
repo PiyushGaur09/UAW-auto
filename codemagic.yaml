@@ -118,13 +118,22 @@ workflows:
           echo "🔍 Showing last errors from xcodebuild.log:"
           grep -i -A 5 -B 5 "error:" "$CM_BUILD_DIR/xcodebuild.log" || true
 
-      - name: Export IPA
+      - name: Export IPA and log file structure
         script: |
           set -ex
+          EXPORT_PATH="$CM_BUILD_DIR/build/ios/ipa"
+          mkdir -p "$EXPORT_PATH"
+      
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
-            -exportPath "$CM_BUILD_DIR/build/ios"
+            -exportPath "$EXPORT_PATH"
+      
+          echo "📦 Contents of export directory ($EXPORT_PATH):"
+          find "$EXPORT_PATH" -print
+      
+          echo "📁 Contents of CM_BUILD_DIR:"
+          find "$CM_BUILD_DIR" -maxdepth 2 -print
 
       - name: Print full build log
         script: |
