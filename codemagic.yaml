@@ -88,6 +88,7 @@ workflows:
             -scheme UAWauto \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             archive \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
