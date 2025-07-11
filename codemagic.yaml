@@ -1,6 +1,6 @@
 workflows:
   react-native-ios-internal:
-    name: UAWauto iOS build
+    name: UAWauto iOS Build
 
     integrations:
       app_store_connect: UAW_API_Key
@@ -8,19 +8,20 @@ workflows:
     environment:
       ios_signing:
         certificates:
-          - UAW_Certificate
+          - UAW_Certificate              # 👈 Reference name from Codemagic UI
         provisioning_profiles:
-          - UAW_Provision_Profile
+          - UAW_Provision_Profile       # 👈 Reference name from Codemagic UI
+
       vars:
         XCODE_WORKSPACE: "ios/UAWauto.xcworkspace"
-        XCODE_SCHEME:    "UAWauto"
-        BUNDLE_ID:  "com.uawauto.uaw"
+        XCODE_SCHEME: "UAWauto"
+        BUNDLE_ID: "com.uawauto.uaw"
 
       node: 18.16.0
       xcode: latest
 
     scripts:
-      - name: Install JS & CocoaPods deps
+      - name: Install JS & CocoaPods dependencies
         script: |
           npm ci
           cd ios && pod install
@@ -32,7 +33,7 @@ workflows:
 
       - name: Apply signing assets
         script: |
-          xcode-project use-profiles --project "ios/UAWauto.xcodeproj"
+          xcode-project use-profiles --project "ios/UAWauto.xcodeproj" --warn-only
 
       - name: Build & export .ipa
         script: |
