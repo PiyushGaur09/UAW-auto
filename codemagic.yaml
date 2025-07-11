@@ -121,22 +121,14 @@ workflows:
       - name: Export IPA and log file structure
         script: |
           set -ex
-          EXPORT_PATH="$CM_BUILD_DIR/build/ios/ipa"
+          EXPORT_PATH="$CM_BUILD_DIR/build/ios"
           mkdir -p "$EXPORT_PATH"
-      
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/UAWauto.xcarchive" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
             -exportPath "$EXPORT_PATH"
-      
-          echo "📦 Contents of export directory ($EXPORT_PATH):"
+          echo "📦 Contents of $EXPORT_PATH"
           find "$EXPORT_PATH" -print
-      
-          echo "📁 Contents of CM_BUILD_DIR /build/:"
-          find "$CM_BUILD_DIR/build/ios/" -maxdepth 2 -print
-
-          echo "📁 Contents of CM_BUILD_DIR /build/ios/ipa:"
-          find "$CM_BUILD_DIR/build/ios/ipa" -maxdepth 2 -print
 
       - name: Print full build log
         script: |
@@ -155,21 +147,21 @@ workflows:
             echo "No per-phase log found."
           fi
 
-artifacts:
-  - build/ios/ipa/*.ipa
-  - build/ios/ipa/*.plist
-  - /tmp/xcodebuild_logs/*.log
-  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
-
-publishing:
-  app_store_connect:
-    auth: integration
-    submit_to_testflight: true
-    expire_build_submitted_for_review: true
-    beta_groups:
-      - UAW-Auto Internal Testing
-    submit_to_app_store: true
-    cancel_previous_submissions: true
-    release_type: AFTER_APPROVAL
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/ipa/*.plist
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        expire_build_submitted_for_review: true
+        beta_groups:
+          - UAW-Auto Internal Testing
+        submit_to_app_store: true
+        cancel_previous_submissions: true
+        release_type: AFTER_APPROVAL
     copyright: 2025 Bipin Tiwari
