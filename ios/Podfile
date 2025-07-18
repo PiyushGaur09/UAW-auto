@@ -1,0 +1,60 @@
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve("react-native/scripts/react_native_pods.rb", {paths: [process.argv[1]]})', __dir__]).strip
+
+platform :ios, '16.0'
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'UAWauto' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  target 'UAWautoTests' do
+    inherit! :complete
+    # Pods for testing
+  end
+
+  post_install do |installer|
+    # Fix SCrypto error
+    require 'fileutils'
+    FileUtils.rm_rf('Pods/SCrypto/Frameworks/iphonesimulator/CommonCrypto.framework')
+
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+
+    # Apply custom build settings
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+        config.build_settings['SWIFT_VERSION'] ||= '5.9'
+
+        # Permissions and defines
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+          '$(inherited)',
+          'PERMISSION_CAMERA=1',
+          'PERMISSION_PHOTOS=1',
+          'PERMISSION_MICROPHONE=0',
+          'PERMISSION_LOCATION=0',
+          'PERMISSION_CONTACTS=0',
+          'PERMISSION_MEDIA_LIBRARY=0',
+          'PERMISSION_SPEECH_RECOGNIZER=0',
+          'PERMISSION_REMINDERS=0',
+          'PERMISSION_EVENTS=0',
+          'PERMISSION_SENSORS=0'
+        ]
+      end
+    end
+  end
+end
